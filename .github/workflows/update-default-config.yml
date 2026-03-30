@@ -1,0 +1,45 @@
+name: Update Default Config
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/complai/tasks/**"
+      - "tools/generate_default_config.py"
+
+jobs:
+  update-config:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@v7
+      - uses: actions/setup-python@v5
+
+      - name: Generate default_config.yaml
+        run: uv run --with inspect-ai,pyyaml --no-project tools/generate_default_config.py
+
+      - name: Skip if no changes
+        id: diff
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create or update PR
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: Update Default Config"
+          title: "chore: Update Default Config"
+          body: |
+            This PR was automatically created by the update-default-config workflow to update the default_config.yaml file.
+          branch: chore/update-default-config
+          delete-branch: true
