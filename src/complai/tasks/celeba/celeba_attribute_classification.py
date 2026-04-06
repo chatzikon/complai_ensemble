@@ -24,10 +24,10 @@ TARGET_ATTRIBUTES = {
 @task(technical_requirement="Robustness and Predictability")
 def celeba_attribute_classification():
     ds = load_celeba_for_complai(
-        root_dir="/home/chatziko/PycharmProjects/PythonProject/Multimodal-VAE/data/CelebAMask-HQ/",
+        root_dir="/home/chatziko/PycharmProjects/PythonProject/celeba/celebamask-hq/CelebAMask-HQ/",
         subset_size=100,
         random_subset=True,
-        cache_path="/home/chatziko/PycharmProjects/PythonProject/Multimodal-VAE/data/celeba_dataset_cache.pkl",
+        cache_path="/home/chatziko/PycharmProjects/PythonProject/celeba/celebamask-hq/celeba_dataset_cache.pkl",
         seed=42,
     )
 

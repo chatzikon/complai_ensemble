@@ -306,6 +306,9 @@ def self_check_consistency_scorer(
         scores: list[bool] = []
         prefix = ""
         for sentence, alternative_sentence in zip(sentences, alternative_sentences):
+
+            is_contradiction = False
+
             try:
                 if sentence == alternative_sentence:
                     is_contradiction = False
