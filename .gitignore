@@ -156,4 +156,4 @@ dist_py_*
 # AI Inspect
 /logs
 
-/src/complai/models/multimodal/checkpoints
+/checkpoints

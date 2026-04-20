@@ -1,0 +1,37 @@
+# Core UI / CLI
+streamlit
+typer
+rich
+
+# Inspect AI framework
+inspect-ai
+
+# ML stack
+transformers
+accelerate
+datasets
+sentencepiece
+
+# PyTorch (GPU installed separately in Dockerfile)
+torch
+torchvision
+torchaudio
+
+# Utilities
+numpy
+pandas
+scipy
+tqdm
+
+# Networking / APIs
+requests
+httpx
+
+# Docker SDK
+docker
+
+# Data / validation
+pydantic
+
+# Optional (used in some tasks)
+nltk

@@ -27,16 +27,14 @@ def load_model(dataset):
     print(f"Using device for evaluation: {device}")
 
     if dataset == 'Flickr30k':
-        model_checkpoint=('/home/chatziko/PycharmProjects/PythonProject/complai_ensemble/src/complai/models'
-                          '/multimodal/checkpoints/final_model_kl_coef_1.0_lr_0.01_latent_dim_64_scheme_a.pt')
+        model_checkpoint=('/home/chatziko/PycharmProjects/PythonProject/checkpoints/final_model_kl_coef_1.0_lr_0.01_latent_dim_64_scheme_a.pt')
         num_attributes = 32
         tokenizer = Tokenizer(32, AutoTokenizer.from_pretrained("facebook/bart-base"))
         vocab_size = tokenizer.tokenizer.vocab_size
         latent_dim = 64
 
     elif dataset == "CelebAMask-HQ":
-        model_checkpoint = ('/home/chatziko/PycharmProjects/PythonProject/complai_ensemble/src/complai/models/'
-                            'multimodal/checkpoints/final_model_kl_coef_1.pt')
+        model_checkpoint = ('/home/chatziko/PycharmProjects/PythonProject/checkpoints/final_model_kl_coef_1.pt')
         num_attributes = 10
         tokenizer=None
         vocab_size = 0
