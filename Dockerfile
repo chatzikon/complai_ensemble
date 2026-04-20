@@ -7,6 +7,9 @@ RUN apt-get update && apt-get install -y \
     python3 python3-pip git && \
     rm -rf /var/lib/apt/lists/*
 
+# install uv
+RUN pip install uv
+
 # Copy requirements first (cache optimization)
 COPY requirements.txt .
 
@@ -24,5 +27,15 @@ COPY config ./config
 # COPY models ./models
 
 ENV PYTHONPATH=/app/src
+ENV CHECKPOINT_DIR=/app/checkpoints
+ENV CELEBA_DIR=/app/celeba
+ENV MALWARE_DIR=/app/malware_bazaar_binaries
+# IMPORTANT: make venv visible globally
+ENV PATH="/app/.venv/bin:$PATH"
+
+# create venv + install deps
+RUN uv sync
+
+CMD ["complai", "eval"]
 
 CMD ["streamlit", "run", "ui/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
