@@ -15,7 +15,7 @@ def list_command() -> None:
     # Group tasks by technical requirement
     tasks_by_requirement: dict[str, list[TaskInfo]] = {}
     for task in tasks:
-        requirement = task.attribs.get("technical_requirement", "Uncategorized")
+        requirement = task.attribs["technical_requirement"]
         if requirement not in tasks_by_requirement:
             tasks_by_requirement[requirement] = []
         tasks_by_requirement[requirement].append(task)

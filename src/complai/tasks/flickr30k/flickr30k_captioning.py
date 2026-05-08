@@ -9,9 +9,7 @@ from complai.solvers.image_caption_solver import image_caption_solver
 
 @task(technical_requirement="Robustness and Predictability")
 def flickr30k_captioning():
-
     torch_dataset = Flickr30kDataset(split="test")
-
     # Convert to InspectAI Dataset format
     samples = []
 
@@ -26,7 +24,6 @@ def flickr30k_captioning():
                 },
             )
         )
-
 
     return Task(
         dataset=samples,

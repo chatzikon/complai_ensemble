@@ -2,6 +2,10 @@ from torch.utils.data import Dataset
 from torchvision import transforms
 from datasets import load_dataset
 
+import os
+#os.environ["HF_DATASETS_DISABLE_PROGRESS_BARS"]='1'
+CHECKPOINT_DIR = os.getenv("HF_HOME", "/.cache/huggingface/")
+
 
 class Flickr30kDataset(Dataset):
 
@@ -9,6 +13,7 @@ class Flickr30kDataset(Dataset):
 
         self.dataset = load_dataset(
             "AnyModal/flickr30k",
+            cache_dir="HF_HOME",
             split=f"{split}[:100]"
         )
 

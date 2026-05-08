@@ -1,0 +1,145 @@
+version: "1.0"
+
+evaluation_scale:
+  0: "Not Implemented"
+  1: "Partially Implemented"
+  2: "Fully Implemented"
+
+principles:
+
+  - principle_id: EP1
+    principle_name: "Human Agency and Oversight"
+
+    technical_requirements:
+
+      - requirement_id: HAO-1.1
+        requirement_name: "Human Agency and Autonomy"
+
+        questions:
+
+          - question_id: HAO-001
+
+            question: >
+              Are end-users or subjects informed that they are interacting
+              with an AI system?
+
+            supporting_indicators:
+              - "Is AI interaction disclosure explicit and understandable?"
+              - "Could users mistakenly believe they are interacting with a human?"
+
+            expected_evidence:
+              - "User interface notifications"
+              - "Disclosure policies"
+              - "System interaction guidelines"
+              - "User documentation"
+
+            scoring_guidelines:
+              0: >
+                No disclosure mechanisms exist and users may reasonably
+                assume they are interacting with a human.
+              1: >
+                Partial or inconsistent disclosure mechanisms exist.
+              2: >
+                Clear and consistent disclosure mechanisms are implemented.
+
+      - requirement_id: HAO-1.2
+        requirement_name: "Human Oversight"
+
+        questions:
+
+          - question_id: HAO-002
+
+            question: >
+              Did you establish any detection and response mechanisms
+              for undesirable adverse effects of the AI system
+              for the end-user or subject?
+
+            supporting_indicators:
+              - "Are monitoring procedures defined?"
+              - "Are escalation procedures available?"
+              - "Can harmful system behavior be identified and mitigated?"
+
+            expected_evidence:
+              - "Monitoring procedures"
+              - "Incident response protocols"
+              - "Human intervention workflows"
+              - "Escalation documentation"
+
+            scoring_guidelines:
+              0: >
+                No formal monitoring or response mechanisms exist.
+              1: >
+                Some monitoring or intervention mechanisms exist,
+                but they are incomplete or inconsistently applied.
+              2: >
+                Operational mechanisms exist to monitor,
+                detect, and mitigate harmful system behavior.
+
+  - principle_id: EP2
+    principle_name: "Accountability"
+
+    technical_requirements:
+
+      - requirement_id: ACC-2.1
+        requirement_name: "Auditability"
+
+        questions:
+
+          - question_id: ACC-001
+
+            question: >
+              Did you establish mechanisms that facilitate
+              the AI system’s auditability?
+
+            supporting_indicators:
+              - "Is the development process documented?"
+              - "Is training data sourcing traceable?"
+              - "Are system outputs and impacts logged?"
+
+            expected_evidence:
+              - "Development documentation"
+              - "Training data provenance records"
+              - "System logs"
+              - "Audit trails"
+
+            scoring_guidelines:
+              0: >
+                No meaningful auditability mechanisms exist.
+              1: >
+                Partial documentation or logging exists.
+              2: >
+                Comprehensive documentation and traceability
+                mechanisms are implemented.
+
+      - requirement_id: ACC-2.2
+        requirement_name: "Risk Management"
+
+        questions:
+
+          - question_id: ACC-002
+
+            question: >
+              Did you establish a process for third parties
+              to report potential vulnerabilities, risks or biases
+              in the AI system?
+
+            supporting_indicators:
+              - "Can external stakeholders submit reports?"
+              - "Are reports incorporated into risk management revisions?"
+              - "Is there a feedback and remediation workflow?"
+
+            expected_evidence:
+              - "Risk reporting procedures"
+              - "Stakeholder communication channels"
+              - "Issue tracking systems"
+              - "Risk management revision records"
+
+            scoring_guidelines:
+              0: >
+                No external reporting mechanisms exist.
+              1: >
+                Limited reporting mechanisms exist,
+                but feedback integration is incomplete.
+              2: >
+                Structured reporting and feedback mechanisms exist
+                and contribute to risk management revisions.

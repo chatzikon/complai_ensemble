@@ -7,9 +7,10 @@ authors = [
 ]
 license = "Apache-2.0"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11,<3.13"
 dependencies = [
     "inspect-evals[bbq,livebench,swe_bench]",
+    "livebench",
     "inspect-ai",
     "openai>=1.90.0",
     "typer>=0.19.0",
@@ -24,11 +25,19 @@ dependencies = [
     "polars>=1.32.2",
     "scipy>=1.13.1",
     "torch>=2.7.1",
+    "torchvision>=0.22",
+    "torch-geometric",
+    "accelerate",
+    "psutil",
     "fairlearn>=0.12.0",
     "datasets>=3.6.0",
     "regex>=2025.7.34",
     "spacy>=3.8.7",
     "en-core-web-sm",
+    "streamlit",
+    "typer",
+    "rich",
+    "pycocoevalcap"
 ]
 
 [project.optional-dependencies]
@@ -82,6 +91,8 @@ files.extend-exclude = [
 ]
 
 [tool.uv.sources]
+livebench = { git = "https://github.com/LiveBench/LiveBench.git" }
+
 inspect-evals = { git = "https://github.com/UKGovernmentBEIS/inspect_evals" }
 llm-rules = { git = "https://github.com/normster/llm_rules" }
 en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }

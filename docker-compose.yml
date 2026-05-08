@@ -2,6 +2,8 @@ services:
   complai:
     build: .
     container_name: complai_app
+    stdin_open: true
+    tty: true
 
     ports:
       - "8501:8501"
@@ -11,13 +13,18 @@ services:
       - ./logs:/app/logs
 
       # ML CHECKPOINTS
-      - /home/chatziko/PycharmProjects/PythonProject/checkpoints:/app/checkpoints
+      - /home/chatziko/PycharmProjects/PythonProject/checkpoints/:/app/checkpoints/
 
       # CELEBA DATASET
-      - /home/chatziko/PycharmProjects/PythonProject/celeba:/app/celeba
+      - /home/chatziko/PycharmProjects/PythonProject/celeba/:/app/celeba/
 
       # MALWARE DATASET
-      - /home/chatziko/PycharmProjects/PythonProject/malware_bazaar_binaries:/app/malware_bazaar_binaries
+      - /home/chatziko/PycharmProjects/PythonProject/malware_bazaar_binaries/:/app/malware_bazaar_binaries/
+
+     # HF home
+      - /home/chatziko/.cache/huggingface:/app/cache/hf
+      - /root/.cache/complai:/app/complai_cache
+
 
     deploy:
       resources:
@@ -30,5 +37,8 @@ services:
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - PYTHONUNBUFFERED=1
+      - HF_TOKEN=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
+      - INSPECT_ALLOW_UNSAFE_PATHS=1
+
 
     restart: unless-stopped

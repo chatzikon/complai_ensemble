@@ -1,17 +1,67 @@
-from __future__ import annotations
-
 import subprocess
+import re
+from typing import List, Dict, Tuple
 from pathlib import Path
-from typing import Dict, List, Tuple
+
+CATEGORIES = [
+    "Capabilities, Performance, and Limitations",
+    "Representation — Absence of Bias",
+    "Interpretability",
+    "Robustness and Predictability",
+    "Fairness — Absence of Discrimination",
+    "Disclosure of AI",
+    "Cyberattack Resilience",
+    "Harmful Content and Toxicity",
+    "Societal Alignment"
+]
 
 
-def discover_tasks() -> Tuple[List[str], Dict[str, str], Dict[str, List[str]]]:
+def clean_ansi_codes(text: str) -> str:
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    return ansi_escape.sub('', text)
+
+
+def unwrap_terminal_lines(text: str) -> str:
     """
-    Returns:
-        - task_list: flat list of task names
-        - task_to_category: mapping task -> category
-        - category_to_tasks: mapping category -> [tasks]
+    Fix HARD WRAPPING caused by terminal width.
+    Key rule:
+    - if line does NOT start with a category AND does NOT contain category
+      and previous line doesn't end with comma → merge
     """
+
+    lines = text.splitlines()
+    rebuilt = []
+
+    for line in lines:
+        line = line.rstrip()
+
+        if not line:
+            continue
+
+        # category line stays
+        if line in CATEGORIES:
+            rebuilt.append(line)
+            continue
+
+        # continuation of previous line (no leading category)
+        if rebuilt:
+            prev = rebuilt[-1]
+
+            # if previous line looks incomplete (no category + not ending cleanly)
+            if (
+                prev not in CATEGORIES
+                and not prev.endswith(",")
+                and not line.strip() in CATEGORIES
+            ):
+                rebuilt[-1] = prev + line.strip()
+                continue
+
+        rebuilt.append(line)
+
+    return "\n".join(rebuilt)
+
+
+def discover_tasks():
 
     try:
         result = subprocess.run(
@@ -20,35 +70,34 @@ def discover_tasks() -> Tuple[List[str], Dict[str, str], Dict[str, List[str]]]:
             text=True,
             check=True,
         )
-    except Exception:
+    except Exception as e:
+        print(f"[discover_tasks] error: {e}")
         return [], {}, {}
 
-    task_list: List[str] = []
-    task_to_category: Dict[str, str] = {}
-    category_to_tasks: Dict[str, List[str]] = {}
+    text = clean_ansi_codes(result.stdout)
+    text = unwrap_terminal_lines(text)
+
+    task_list = []
+    task_to_category = {}
+    category_to_tasks = {c: [] for c in CATEGORIES}
 
     current_category = None
 
-    for raw_line in result.stdout.splitlines():
-        line = raw_line.strip()
-
+    for line in text.splitlines():
+        line = line.strip()
         if not line:
             continue
 
-        # Category line (no indentation)
-        if not raw_line.startswith("  "):
+        # category detection
+        if line in CATEGORIES:
             current_category = line
-            if current_category not in category_to_tasks:
-                category_to_tasks[current_category] = []
             continue
 
-        # Task line (indented)
         if current_category is None:
             continue
 
-        tasks = [t.strip() for t in line.split(",") if t.strip()]
-
-        for task in tasks:
+        # task parsing
+        for task in [t.strip() for t in line.split(",") if t.strip()]:
             task_list.append(task)
             task_to_category[task] = current_category
             category_to_tasks[current_category].append(task)
