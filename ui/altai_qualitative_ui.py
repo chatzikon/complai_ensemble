@@ -10,6 +10,8 @@ from complai.tasks.altai_qualitative.altai_qualitative import (
     load_altai_questions,
 )
 
+from complai.reports.storage import save_evaluation_result
+
 
 SCORE_LABEL_TO_VALUE = {
     "N/A": None,
@@ -50,6 +52,11 @@ def render_altai_qualitative_page(
     st.caption(
         "Questionnaire-based governance assessment for Human Agency & Oversight "
         "and Accountability."
+    )
+
+    model_name = st.text_input(
+        "Model name",
+        help="Used to attach this ALTAI assessment to a model report.",
     )
 
     questionnaire = load_altai_questions(questionnaire_path)
@@ -103,6 +110,16 @@ def render_altai_qualitative_page(
         predictions = [solver(sample) for sample in samples]
 
         results = altai_qualitative_scorer(samples, predictions)
+
+        if model_name.strip():
+            saved_path = save_evaluation_result(
+                model_name=model_name.strip(),
+                evaluation_name="altai_qualitative",
+                result=results,
+            )
+            st.success(f"Saved ALTAI result to {saved_path}")
+        else:
+            st.warning("Model name is empty, so the result was not saved.")
 
         st.subheader("Results")
         st.json(results)

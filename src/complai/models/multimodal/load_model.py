@@ -15,6 +15,7 @@ class Tokenizer:
     def __call__(self, x: str) -> AutoTokenizer:
         return self.tokenizer(
             x,
+            token=os.environ.get("HF_TOKEN"),
             max_length=self.max_length,
             truncation=True,
             padding="max_length",

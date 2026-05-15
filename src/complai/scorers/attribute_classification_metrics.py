@@ -113,7 +113,8 @@ def _binary_confusion_stats(sample_scores: list[SampleScore]):
 
 
 @metric
-def multilabel_accuracy():
+#def multilabel_accuracy():
+def accuracy():
     def compute(sample_scores: list[SampleScore]) -> float:
         tn, fp, fn, tp = _binary_confusion_stats(sample_scores)
         denom = tp + tn + fp + fn
@@ -122,7 +123,8 @@ def multilabel_accuracy():
 
 
 @metric
-def multilabel_precision():
+#def multilabel_precision():
+def precision():
     def compute(sample_scores: list[SampleScore]) -> float:
         tn, fp, fn, tp = _binary_confusion_stats(sample_scores)
         denom = tp + fp
@@ -131,7 +133,8 @@ def multilabel_precision():
 
 
 @metric
-def multilabel_recall():
+#def multilabel_recall():
+def recall():
     def compute(sample_scores: list[SampleScore]) -> float:
         tn, fp, fn, tp = _binary_confusion_stats(sample_scores)
         denom = tp + fn
@@ -140,7 +143,8 @@ def multilabel_recall():
 
 
 @metric
-def multilabel_f1():
+#def multilabel_f1():
+def f1():
     def compute(sample_scores: list[SampleScore]) -> float:
         tn, fp, fn, tp = _binary_confusion_stats(sample_scores)
         precision = float(tp / (tp + fp)) if (tp + fp) > 0 else 0.0
@@ -152,10 +156,10 @@ def multilabel_f1():
 
 @scorer(
     metrics=[
-        multilabel_accuracy(),
-        multilabel_precision(),
-        multilabel_recall(),
-        multilabel_f1(),
+        accuracy(),
+        precision(),
+        recall(),
+        f1(),
     ]
 )
 def attribute_classification_scorer():

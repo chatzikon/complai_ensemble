@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 
 import streamlit as st
-
+from complai.reports.storage import save_evaluation_result
 from complai._cli.utils import get_log_dir
 from altai_qualitative_ui import render_altai_qualitative_page
 
@@ -19,6 +19,12 @@ from utils.devices import default_device_value, discover_device_options
 from utils.discovery import discover_tasks
 from utils.metrics import extract_metrics_from_log_dir, prettify_metric_name
 from utils.runner import stream_command
+
+def round_dict_values(metrics, decimals=2):
+    return {
+        k: round(v, decimals) if isinstance(v, float) else v
+        for k, v in metrics.items()
+    }
 
 
 def clean_ansi_codes(text):
@@ -178,13 +184,35 @@ def render_quantitative_benchmark_page():
 
             metrics = extract_metrics_from_log_dir(log_dir)
 
+
+            metrics = round_dict_values(metrics)
+
+
             if metrics:
+                quantitative_result = {
+                    "model_name": model_spec,
+                    "task": task,
+                    "category": task_to_category.get(task, "Unknown"),
+                    "metrics": metrics,
+                    "log_dir": log_dir,
+                }
+
+                saved_path = save_evaluation_result(
+                    model_name=model_spec,
+                    evaluation_name=f"quantitative_{task}",
+                    result=quantitative_result,
+                )
+
+                st.success(f"Saved quantitative result to {saved_path}")
+
+
+
                 metric_items = list(metrics.items())
                 n_cols = min(3, len(metric_items))
                 cols = metrics_area.columns(n_cols)
 
                 for i, (name, value) in enumerate(metric_items):
-                    cols[i % n_cols].metric(prettify_metric_name(name), f"{value:.4f}")
+                    cols[i % n_cols].metric(prettify_metric_name(name), f"{value:.2f}")
             else:
                 metrics_area.info("No metrics found in logs.json")
 

@@ -5,6 +5,8 @@ services:
     stdin_open: true
     tty: true
 
+
+
     ports:
       - "8501:8501"
 
@@ -37,7 +39,7 @@ services:
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - PYTHONUNBUFFERED=1
-      - HF_TOKEN=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
+      - HF_TOKEN=${HF_TOKEN}
       - INSPECT_ALLOW_UNSAFE_PATHS=1
 
 

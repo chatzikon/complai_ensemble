@@ -13,6 +13,7 @@ class Flickr30kDataset(Dataset):
 
         self.dataset = load_dataset(
             "AnyModal/flickr30k",
+            token=os.environ.get("HF_TOKEN"),
             cache_dir="HF_HOME",
             split=f"{split}[:100]"
         )

@@ -9,7 +9,7 @@ license = "Apache-2.0"
 readme = "README.md"
 requires-python = ">=3.11,<3.13"
 dependencies = [
-    "inspect-evals[bbq,livebench,swe_bench]",
+    "inspect-evals[swe_bench]",
     "livebench",
     "inspect-ai",
     "openai>=1.90.0",
@@ -37,7 +37,9 @@ dependencies = [
     "streamlit",
     "typer",
     "rich",
-    "pycocoevalcap"
+    "pycocoevalcap",
+    "flash-linear-attention",
+    "strong-reject"
 ]
 
 [project.optional-dependencies]
@@ -92,6 +94,7 @@ files.extend-exclude = [
 
 [tool.uv.sources]
 livebench = { git = "https://github.com/LiveBench/LiveBench.git" }
+strong-reject = { git = "https://github.com/dsbowen/strong_reject.git" }
 
 inspect-evals = { git = "https://github.com/UKGovernmentBEIS/inspect_evals" }
 llm-rules = { git = "https://github.com/normster/llm_rules" }

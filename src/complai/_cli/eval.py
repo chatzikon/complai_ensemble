@@ -21,6 +21,7 @@ from complai._cli.utils import patch_display_results
 from complai._cli.utils import validate_model_args
 
 
+
 def eval_command(
     model: Annotated[
         str,

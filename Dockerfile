@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04
 
 WORKDIR /app
 
@@ -8,8 +8,9 @@ WORKDIR /app
 
 
 RUN apt-get update && apt-get install -y \
-    python3 python3-pip git && \
-    rm -rf /var/lib/apt/lists/*
+    python3 python3-pip git build-essential ninja-build \
+    && rm -rf /var/lib/apt/lists/*
+
 
 # 1. Install tools to manage repositories
 RUN apt-get update && apt-get install -y \
@@ -30,7 +31,7 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 RUN java -version
 
 # install uv
-RUN pip install uv
+RUN python3 -m pip install --no-cache-dir uv
 
 # Copy ONLY dependency files first (better caching)
 COPY pyproject.toml uv.lock README.md ./
@@ -48,7 +49,7 @@ RUN .venv/bin/python -c "from pycocoevalcap.spice.spice import Spice; Spice()"
 # This ensures the user has permission to write to the spice tmp folders
 # and pre-downloads NLTK data required by many metrics.
 RUN .venv/bin/python -m nltk.downloader punkt
-RUN chmod -R 777 /app/.venv/lib/python3.10/site-packages/pycocoevalcap/spice/tmp || true
+RUN chmod -R 777 /app/.venv/lib/python*/site-packages/pycocoevalcap/spice/tmp || true
 
 # Copy ALL project code into image
 COPY src ./src
@@ -57,6 +58,7 @@ COPY tools ./tools
 COPY providers ./providers
 COPY config ./config
 
+#RUN mkdir -p /app/logs
 
 
 
