@@ -4,15 +4,19 @@ from typing import List, Dict, Tuple
 from pathlib import Path
 
 CATEGORIES = [
-    "Capabilities, Performance, and Limitations",
-    "Representation — Absence of Bias",
-    "Interpretability",
     "Robustness and Predictability",
-    "Fairness — Absence of Discrimination",
-    "Disclosure of AI",
     "Cyberattack Resilience",
+    "Training Data Suitability",
+    "No Copyright Infringement",
+    "User Privacy Protection"
+    "Capabilities, Performance, and Limitations",
+    "Interpretability",
+    "Disclosure of AI",
+    "Traceability",
+    "Fairness — Absence of Discrimination",
+    "Representation — Absence of Bias",
+    "Enviromental Impact",
     "Harmful Content and Toxicity",
-    "Societal Alignment"
 ]
 
 

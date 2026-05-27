@@ -75,7 +75,7 @@ principles:
                 Operational mechanisms exist to monitor,
                 detect, and mitigate harmful system behavior.
 
-  - principle_id: EP2
+  - principle_id: EP7
     principle_name: "Accountability"
 
     technical_requirements:

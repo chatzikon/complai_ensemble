@@ -1,14 +1,14 @@
 services:
-  complai:
+  complai_trial:
     build: .
-    container_name: complai_app
+    container_name: complai_app_trial
     stdin_open: true
     tty: true
 
 
 
     ports:
-      - "8501:8501"
+      - "8503:8503"
 
     volumes:
       # ONLY logs (your rule)
@@ -36,11 +36,16 @@ services:
               count: all
               capabilities: [gpu]
 
+    env_file:
+      - .env
     environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - PYTHONUNBUFFERED=1
-      - HF_TOKEN=${HF_TOKEN}
-      - INSPECT_ALLOW_UNSAFE_PATHS=1
+      HF_HOME: /app/cache/hf
+      NVIDIA_VISIBLE_DEVICES: all
+      PYTHONUNBUFFERED: "1"
+      HF_TOKEN: ${HF_TOKEN}
+      INSPECT_ALLOW_UNSAFE_PATHS: "1"
+
+
 
 
     restart: unless-stopped

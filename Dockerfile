@@ -66,7 +66,7 @@ COPY config ./config
 # COPY datasets ./datasets
 # COPY models ./models
 
-ENV PYTHONPATH=/app/src
+ENV PYTHONPATH=/app:/app/src
 ENV CHECKPOINT_DIR=/app/checkpoints/
 ENV CELEBA_DIR=/app/celeba/
 ENV MALWARE_DIR=/app/malware_bazaar_binaries/
@@ -77,13 +77,5 @@ ENV COMPLAI_CACHE=/app/complai_cache
 ENV PATH="/app/.venv/bin:$PATH"
 
 
-#ENV HF_HUB_VERBOSITY=debug
-#ENV HF_DATASETS_VERBOSITY=debug
-
-#ENV TQDM_MININTERVAL=0.1
-#ENV TQDM_ISATTY=True
-#ENV PYTHONUNBUFFERED=1
-
-#CMD ["complai", "eval"]
-
-CMD ["streamlit", "run", "ui/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "ui/app.py", "--server.port=8503", "--server.address=0.0.0.0"]
+#CMD ["/app/start.sh", "streamlit", "run", "ui/app.py", "--server.port=8503", "--server.address=0.0.0.0"]

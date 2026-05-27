@@ -39,7 +39,9 @@ dependencies = [
     "rich",
     "pycocoevalcap",
     "flash-linear-attention",
-    "strong-reject"
+    "strong-reject",
+    "setuptools<=80",
+    "kernels>=0.10.0"
 ]
 
 [project.optional-dependencies]

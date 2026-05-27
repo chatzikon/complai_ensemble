@@ -155,5 +155,6 @@ dist_py_*
 
 # AI Inspect
 /logs
+/hf_cache
 
 /checkpoints

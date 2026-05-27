@@ -4,9 +4,30 @@ import re
 from pathlib import Path
 
 import streamlit as st
+
 from complai.reports.storage import save_evaluation_result
+
+
 from complai._cli.utils import get_log_dir
-from altai_qualitative_ui import render_altai_qualitative_page
+from complai.reports.log_parser import (
+    extract_metric_results_from_logs,
+    load_logs_json,
+)
+
+from complai.reports.model_report import build_model_report_from_saved_results
+from complai.reports.storage import (
+    save_evaluation_result,
+    load_model_results,
+)
+
+def safe_widget_key(value: str) -> str:
+    return (
+        value.replace("/", "__")
+        .replace(":", "_")
+        .replace(" ", "_")
+    )
+
+
 
 from config import (
     DEFAULT_MODEL,
@@ -19,6 +40,23 @@ from utils.devices import default_device_value, discover_device_options
 from utils.discovery import discover_tasks
 from utils.metrics import extract_metrics_from_log_dir, prettify_metric_name
 from utils.runner import stream_command
+
+from altai_qualitative_ui import render_altai_qualitative_page
+from ui.report_panel import render_model_report_panel
+
+def find_latest_logs_json(log_dir: str | Path) -> Path | None:
+    log_dir = Path(log_dir)
+
+    candidates = list(log_dir.rglob("logs.json"))
+
+    if not candidates:
+        return None
+
+    return max(candidates, key=lambda path: path.stat().st_mtime)
+
+def get_model_state_key(provider: str) -> str:
+    return f"selected_model_name__{provider}"
+
 
 def round_dict_values(metrics, decimals=2):
     return {
@@ -62,8 +100,8 @@ def render_quantitative_benchmark_page():
 
     grouped_task_options = []
     for category, tasks in category_to_tasks.items():
-        for t in tasks:
-            grouped_task_options.append(f"{category} → {t}")
+        for task_name in tasks:
+            grouped_task_options.append(f"{category} → {task_name}")
 
     default_task_display = None
     for opt in grouped_task_options:
@@ -82,10 +120,15 @@ def render_quantitative_benchmark_page():
         provider = st.selectbox(
             "Provider",
             LOCAL_PROVIDERS,
-            index=LOCAL_PROVIDERS.index(DEFAULT_PROVIDER)
-            if DEFAULT_PROVIDER in LOCAL_PROVIDERS
+            index=LOCAL_PROVIDERS.index(
+                st.session_state.get("selected_provider", DEFAULT_PROVIDER)
+            )
+            if st.session_state.get("selected_provider", DEFAULT_PROVIDER) in LOCAL_PROVIDERS
             else 0,
+            key="quant_provider",
         )
+
+    st.session_state["selected_provider"] = provider
 
     with col2:
         selected_task_display = st.selectbox(
@@ -99,21 +142,36 @@ def render_quantitative_benchmark_page():
     task = selected_task_display.split(" → ", 1)[1]
     st.caption(f"📂 Category: {task_to_category.get(task, 'Unknown')}")
 
+    st.session_state["selected_provider"] = provider
+
     default_model_for_provider = PROVIDER_DEFAULT_MODELS.get(provider, DEFAULT_MODEL)
+    model_state_key = get_model_state_key(provider)
+
+    if model_state_key not in st.session_state:
+        st.session_state[model_state_key] = default_model_for_provider
 
     col3, col4 = st.columns(2)
+
+    # current_model_value = st.session_state.get(
+    #     "selected_model_name",
+    #     default_model_for_provider,
+    # )
 
     with col3:
         model_name = st.text_input(
             "Model name",
-            value=default_model_for_provider,
+            value=st.session_state[model_state_key],
             help="Examples: baseline_gcn, CMAlign, Qwen/Qwen3-8B",
+            key=f"quant_model_name_{provider}",
         )
+
+    st.session_state[model_state_key] = model_name
+
 
     with col4:
         limit = st.text_input("Sample limit (-l)", "")
 
-    col5, col6 = st.columns(2)
+    col5, col6, col7 = st.columns(3)
 
     with col5:
         debug = st.checkbox("Debug (--debug)", value=True)
@@ -124,6 +182,16 @@ def render_quantitative_benchmark_page():
             device_labels,
             index=device_labels.index(default_label),
             help="Detected automatically from the current machine",
+        )
+
+    with col7:
+        max_connections = st.text_input(
+            "Max connections",
+            value="4",
+            help=(
+                "Controls model generation concurrency / effective batch size. "
+                "Lower values reduce GPU memory usage."
+            ),
         )
 
     selected_device = device_label_to_value[selected_device_label]
@@ -141,20 +209,37 @@ def render_quantitative_benchmark_page():
     if selected_device.strip():
         cmd += ["-M", f"device={selected_device.strip()}"]
 
+    if max_connections.strip():
+        cmd += ["--max-connections", max_connections.strip()]
+
     st.markdown("### CLI Preview")
     st.code(" ".join(cmd), language="bash")
     st.caption(f"Run logs will be saved to: `{log_dir}`")
 
+
+    show_logs = st.checkbox("Show logs", value=False)
+
+    metrics_col, report_col = st.columns([1.6, 1])
+
+    with metrics_col:
+        st.markdown("### 📊 Metrics")
+        metrics_area = st.empty()
+
+    with report_col:
+        report_placeholder = st.empty()
+
+    saved_results = load_model_results(model_spec)
+    report_to_render = build_model_report_from_saved_results(saved_results)
+
+
+
+    if show_logs:
+        st.markdown("### 📟 Logs")
+        log_area = st.empty()
+    else:
+        log_area = None
+
     if st.button("▶ Run Evaluation"):
-        logs_col, metrics_col = st.columns([1.6, 1])
-
-        with logs_col:
-            st.markdown("### 📟 Logs")
-            log_area = st.empty()
-
-        with metrics_col:
-            st.markdown("### 📊 Metrics")
-            metrics_area = st.empty()
 
         logs_list = []
 
@@ -177,12 +262,32 @@ def render_quantitative_benchmark_page():
                 else:
                     logs_list.append(clean_line)
 
-                display_text = "\n".join(logs_list[-100:])
-                log_area.code(display_text, language="text")
+                if show_logs and log_area is not None:
+                    display_text = "\n".join(logs_list[-100:])
+                    log_area.code(display_text, language="text")
+
 
             process.wait()
 
             metrics = extract_metrics_from_log_dir(log_dir)
+
+            logs_json_path = find_latest_logs_json(log_dir)
+            metric_results = []
+
+            if logs_json_path is not None:
+                logs_json = load_logs_json(logs_json_path)
+                metric_results = extract_metric_results_from_logs(logs_json)
+
+            st.write("DEBUG metric_results:", metric_results)
+            st.write(
+                "DEBUG requirements:",
+                [
+                    r.get("technical_requirement")
+                    or r.get("requirement_name")
+                    or r.get("requirement_id")
+                    for r in metric_results
+                ],
+            )
 
 
             metrics = round_dict_values(metrics)
@@ -194,6 +299,7 @@ def render_quantitative_benchmark_page():
                     "task": task,
                     "category": task_to_category.get(task, "Unknown"),
                     "metrics": metrics,
+                    "metric_results": metric_results,
                     "log_dir": log_dir,
                 }
 
@@ -213,6 +319,10 @@ def render_quantitative_benchmark_page():
 
                 for i, (name, value) in enumerate(metric_items):
                     cols[i % n_cols].metric(prettify_metric_name(name), f"{value:.2f}")
+
+                saved_results = load_model_results(model_spec)
+                report_to_render = build_model_report_from_saved_results(saved_results)
+
             else:
                 metrics_area.info("No metrics found in logs.json")
 
@@ -224,6 +334,13 @@ def render_quantitative_benchmark_page():
         except Exception as e:
             st.error(f"❌ Failed to run command: {e}")
 
+    with report_placeholder.container():
+        render_model_report_panel(
+            report_to_render,
+            model_spec,
+            key_prefix=f"quantitative_report_{safe_widget_key(model_spec)}",
+            show_reset=True,
+        )
 
 st.set_page_config(page_title="Ensemble evaluation platform", layout="wide")
 
