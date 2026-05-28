@@ -39,7 +39,12 @@ from config import (
 from utils.devices import default_device_value, discover_device_options
 from utils.discovery import discover_tasks
 from utils.metrics import extract_metrics_from_log_dir, prettify_metric_name
-from utils.runner import stream_command
+from utils.runner import (
+    stream_command,
+    kill_process_tree,
+    kill_running_evaluation,
+    clear_running_evaluation_pid,
+)
 
 from altai_qualitative_ui import render_altai_qualitative_page
 from ui.report_panel import render_model_report_panel
@@ -239,12 +244,27 @@ def render_quantitative_benchmark_page():
     else:
         log_area = None
 
+    st.divider()
+
+    if st.button("🛑 Stop last running evaluation / free GPU memory"):
+        killed = kill_running_evaluation()
+
+        if killed:
+            st.success("Stopped the last running evaluation process.")
+        else:
+            st.info("No running evaluation process was found.")
+
+        st.rerun()
+
+
     if st.button("▶ Run Evaluation"):
 
         logs_list = []
+        process = None
 
         try:
             iterator, process = stream_command(cmd)
+            st.session_state["running_eval_process"] = process
 
             for line in iterator:
                 clean_line = clean_ansi_codes(line.strip("\n"))
@@ -268,6 +288,8 @@ def render_quantitative_benchmark_page():
 
 
             process.wait()
+
+
 
             metrics = extract_metrics_from_log_dir(log_dir)
 
@@ -333,6 +355,16 @@ def render_quantitative_benchmark_page():
 
         except Exception as e:
             st.error(f"❌ Failed to run command: {e}")
+
+            if process is not None:
+                kill_process_tree(process)
+
+
+        finally:
+
+            clear_running_evaluation_pid(process)
+
+            st.session_state.pop("running_eval_process", None)
 
     with report_placeholder.container():
         render_model_report_panel(
