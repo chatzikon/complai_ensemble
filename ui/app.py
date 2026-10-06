@@ -95,13 +95,16 @@ def render_header():
 
 
 def render_quantitative_benchmark_page():
-    task_list, task_to_category, category_to_tasks = discover_tasks()
+    try:
+        task_list, task_to_category, category_to_tasks = discover_tasks()
+    except Exception as exc:
+        st.error(f"Could not discover benchmark tasks: {exc}")
+        return
     device_options = discover_device_options()
 
     if not task_list:
-        task_list = [DEFAULT_TASK]
-        task_to_category = {DEFAULT_TASK: "Unknown"}
-        category_to_tasks = {"Unknown": [DEFAULT_TASK]}
+        st.warning("No benchmark tasks found. Check src/complai/tasks and run complai list.")
+        return
 
     grouped_task_options = []
     for category, tasks in category_to_tasks.items():

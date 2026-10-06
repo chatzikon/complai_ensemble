@@ -1,112 +1,52 @@
-import subprocess
-import re
-from typing import List, Dict, Tuple
 from pathlib import Path
 
-CATEGORIES = [
-    "Robustness and Predictability",
-    "Cyberattack Resilience",
-    "Training Data Suitability",
-    "No Copyright Infringement",
-    "User Privacy Protection"
-    "Capabilities, Performance, and Limitations",
-    "Interpretability",
-    "Disclosure of AI",
-    "Traceability",
-    "Fairness — Absence of Discrimination",
-    "Representation — Absence of Bias",
-    "Enviromental Impact",
-    "Harmful Content and Toxicity",
-]
+from complai._cli.utils import get_complai_tasks
+
+TECHNICAL_REQUIREMENT_TO_PRINCIPLE = {
+    "No Technical Requirements": "Human Agency and Oversight",
+
+    "Robustness and Predictability": "Technical Robustness and Safety",
+    "Cyberattack Resilience": "Technical Robustness and Safety",
+
+    "Training Data Suitability": "Privacy and Data Governance",
+    "No Copyright Infringement": "Privacy and Data Governance",
+    "User Privacy Protection": "Privacy and Data Governance",
+
+    "Capabilities, Performance, and Limitations": "Transparency",
+    "Interpretability": "Transparency",
+    "Disclosure of AI Presence": "Transparency",
+    "Traceability": "Transparency",
+
+    "Fairness — Absence of Discrimination":
+        "Diversity, Non-discrimination and Fairness",
+    "Representation — Absence of Bias":
+        "Diversity, Non-discrimination and Fairness",
+
+    "Societal Alignment": "Societal and Environmental Well-being",
+    "Environmental Impact": "Societal and Environmental Well-being",
+    "Harmful Content and Toxicity": "Societal and Environmental Well-being",
+}
 
 
-def clean_ansi_codes(text: str) -> str:
-    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
-    return ansi_escape.sub('', text)
+def discover_tasks() -> tuple[list[str], dict[str, str], dict[str, list[str]]]:
+    """Discover the same tasks as the CLI without parsing terminal output.
 
-
-def unwrap_terminal_lines(text: str) -> str:
+    Inspect reads @task declarations under src/complai/tasks. Categories come
+    directly from their technical_requirement attributes, not a UI allowlist.
+    Let discovery errors reach the UI so they are visible to the user.
     """
-    Fix HARD WRAPPING caused by terminal width.
-    Key rule:
-    - if line does NOT start with a category AND does NOT contain category
-      and previous line doesn't end with comma → merge
-    """
+    task_to_category = {
+        task.name: task.attribs.get("technical_requirement") or "Uncategorized"
+        for task in get_complai_tasks()
+    }
+    task_list = sorted(task_to_category)
+    category_to_tasks: dict[str, list[str]] = {
+        category: [] for category in sorted(set(task_to_category.values()))
+    }
+    for task_name in task_list:
+        category_to_tasks[task_to_category[task_name]].append(task_name)
 
-    lines = text.splitlines()
-    rebuilt = []
-
-    for line in lines:
-        line = line.rstrip()
-
-        if not line:
-            continue
-
-        # category line stays
-        if line in CATEGORIES:
-            rebuilt.append(line)
-            continue
-
-        # continuation of previous line (no leading category)
-        if rebuilt:
-            prev = rebuilt[-1]
-
-            # if previous line looks incomplete (no category + not ending cleanly)
-            if (
-                prev not in CATEGORIES
-                and not prev.endswith(",")
-                and not line.strip() in CATEGORIES
-            ):
-                rebuilt[-1] = prev + line.strip()
-                continue
-
-        rebuilt.append(line)
-
-    return "\n".join(rebuilt)
-
-
-def discover_tasks():
-
-    try:
-        result = subprocess.run(
-            ["complai", "list"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-    except Exception as e:
-        print(f"[discover_tasks] error: {e}")
-        return [], {}, {}
-
-    text = clean_ansi_codes(result.stdout)
-    text = unwrap_terminal_lines(text)
-
-    task_list = []
-    task_to_category = {}
-    category_to_tasks = {c: [] for c in CATEGORIES}
-
-    current_category = None
-
-    for line in text.splitlines():
-        line = line.strip()
-        if not line:
-            continue
-
-        # category detection
-        if line in CATEGORIES:
-            current_category = line
-            continue
-
-        if current_category is None:
-            continue
-
-        # task parsing
-        for task in [t.strip() for t in line.split(",") if t.strip()]:
-            task_list.append(task)
-            task_to_category[task] = current_category
-            category_to_tasks[current_category].append(task)
-
-    return sorted(set(task_list)), task_to_category, category_to_tasks
+    return task_list, task_to_category, category_to_tasks
 
 
 def discover_local_models() -> list[str]:

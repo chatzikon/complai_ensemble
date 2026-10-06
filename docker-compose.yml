@@ -1,14 +1,14 @@
 services:
-  complai_trial:
+  complai:
     build: .
-    container_name: complai_app_trial
+    container_name: complai_app
     stdin_open: true
     tty: true
 
 
 
     ports:
-      - "8503:8503"
+      - "8502:8502"
 
     volumes:
       # ONLY logs (your rule)

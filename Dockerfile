@@ -77,5 +77,5 @@ ENV COMPLAI_CACHE=/app/complai_cache
 ENV PATH="/app/.venv/bin:$PATH"
 
 
-CMD ["streamlit", "run", "ui/app.py", "--server.port=8503", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "ui/app.py", "--server.port=8502", "--server.address=0.0.0.0"]
 #CMD ["/app/start.sh", "streamlit", "run", "ui/app.py", "--server.port=8503", "--server.address=0.0.0.0"]
