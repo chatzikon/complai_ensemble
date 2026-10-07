@@ -14,7 +14,7 @@ TECHNICAL_REQUIREMENT_TO_PRINCIPLE = {
 
     "Capabilities, Performance, and Limitations": "Transparency",
     "Interpretability": "Transparency",
-    "Disclosure of AI Presence": "Transparency",
+    "Disclosure of AI": "Transparency",
     "Traceability": "Transparency",
 
     "Fairness — Absence of Discrimination":
@@ -22,7 +22,7 @@ TECHNICAL_REQUIREMENT_TO_PRINCIPLE = {
     "Representation — Absence of Bias":
         "Diversity, Non-discrimination and Fairness",
 
-    "Societal Alignment": "Societal and Environmental Well-being",
+    "Societal Alignment": "Unmapped Principle",
     "Environmental Impact": "Societal and Environmental Well-being",
     "Harmful Content and Toxicity": "Societal and Environmental Well-being",
 }
