@@ -22,6 +22,7 @@ from config import (
     DEFAULT_TASK,
     LOCAL_PROVIDERS,
     PROVIDER_DEFAULT_MODELS,
+    PROVIDER_MODEL_OPTIONS,
 )
 
 from utils.devices import default_device_value, discover_device_options
@@ -202,12 +203,35 @@ def render_quantitative_benchmark_page():
 
     with col2:
 
-        model_name = st.text_input(
-            "Model name",
-            value=st.session_state[model_state_key],
-            help="Examples: baseline_gcn, CMAlign, Qwen/Qwen3-8B",
-            key=f"quant_model_name_{provider}",
-        )
+        model_options = PROVIDER_MODEL_OPTIONS.get(provider)
+
+        if model_options:
+
+            current_model = st.session_state.get(
+                model_state_key,
+                default_model_for_provider,
+            )
+
+            if current_model not in model_options:
+                current_model = default_model_for_provider
+
+            model_name = st.selectbox(
+                "Model",
+                model_options,
+                index=model_options.index(current_model),
+                key=f"quant_model_select_{provider}",
+            )
+
+        else:
+
+            model_name = st.text_input(
+                "Model name",
+                value=st.session_state[model_state_key],
+                help="Examples: Qwen/Qwen3-8B, meta-llama/Llama-3.1-8B-Instruct",
+                key=f"quant_model_name_{provider}",
+            )
+
+    st.session_state[model_state_key] = model_name
 
     st.session_state[model_state_key] = model_name
 

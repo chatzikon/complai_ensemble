@@ -12,6 +12,13 @@ LOCAL_PROVIDERS = [
     "transformerlens",
 ]
 
+PROVIDER_MODEL_OPTIONS = {
+    "ensemble": [
+        "baseline_gcn",
+        "CMAlign",
+    ],
+}
+
 PROVIDER_DEFAULT_MODELS = {
     "ensemble": "baseline_gcn",
 
