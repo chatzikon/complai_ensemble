@@ -1,10 +1,9 @@
-DEFAULT_PROVIDER = "malware"
+DEFAULT_PROVIDER = "ensemble"
 DEFAULT_MODEL = "baseline_gcn"
 DEFAULT_TASK = "malware_cfg_eval"
 
 LOCAL_PROVIDERS = [
-    "malware",
-    "multimodal",
+    "ensemble",
     "hf",
     "vllm",
     "sglang",
@@ -14,8 +13,8 @@ LOCAL_PROVIDERS = [
 ]
 
 PROVIDER_DEFAULT_MODELS = {
-    "malware": "baseline_gcn",
-    "multimodal": "CMAlign",
+    "ensemble": "baseline_gcn",
+
     "hf": "Qwen/Qwen3-8B",
     "hf/local": "",
     "vllm": "Qwen/Qwen3-8B",

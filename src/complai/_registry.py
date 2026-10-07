@@ -26,3 +26,4 @@ from complai.tasks.strong_reject import strong_reject
 from complai.tasks.triviaqa_calibration import triviaqa_calibration
 from complai.tasks.truthfulqa import truthfulqa
 from complai.tasks import altai_qualitative
+from complai.models.ensemble import ensemble

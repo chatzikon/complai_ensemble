@@ -180,6 +180,7 @@ def render_quantitative_benchmark_page():
                 if current_provider in LOCAL_PROVIDERS
                 else 0
             ),
+            format_func=lambda p: "ENSEMBLE" if p == "ensemble" else p,
             key="quant_provider",
         )
 

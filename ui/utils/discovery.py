@@ -54,11 +54,19 @@ def discover_local_models() -> list[str]:
 
     models_dir = Path("src/complai/models")
 
-    if (models_dir / "malware_gcn_provider.py").exists():
-        models.append("malware/baseline_gcn")
+    if (
+        models_dir
+        / "malware_gcn"
+        / "malware_gcn_model.py"
+    ).exists():
+        models.append("ensemble/baseline_gcn")
 
-    if (models_dir / "multimodal.py").exists():
-        models.append("multimodal/my_model")
+    if (
+        models_dir
+        / "multimodal"
+        / "multimodal_model.py"
+    ).exists():
+        models.append("ensemble/CMAlign")
 
     return sorted(set(models))
 
