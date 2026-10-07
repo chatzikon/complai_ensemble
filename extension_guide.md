@@ -1,19 +1,3 @@
----
-title: "ENSEMBLE / COMPL-AI Extension & Handover Guide"
-subtitle: "Developer onboarding and extension templates"
-author: "ENSEMBLE project"
-date: "October 2026"
-toc: true
-toc-depth: 2
-geometry: margin=1in
-fontsize: 10pt
----
-
-> Repository: `chatzikon/complai_ensemble`  
-> Purpose: help a new colleague understand the existing evaluation platform, reproduce the current work, and safely extend it with new benchmarks, qualitative questions, models, datasets, solvers, scorers, metrics, and UI mappings.
-
----
-
 ## 1. What this repository does
 
 The repository extends COMPL-AI / Inspect AI with an ENSEMBLE-oriented evaluation workflow containing two complementary assessment paths:
